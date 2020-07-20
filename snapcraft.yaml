@@ -1,0 +1,49 @@
+name: wal-g
+base: core18
+summary: WAL archival and restoration tool for PostgreSQL
+description: >
+  WAL-G is an archival restoration tool for Postgres (beta for MySQL, MariaDB, MongoDB, and Redis).
+  It is the successor of WAL-E with a number of key differences. WAL-G uses LZ4, LZMA, or Brotli
+  compression, multiple processors, and non-exclusive base backups for PostgreSQL.
+grade: stable
+confinement: classic
+adopt-info: wal-g
+apps:
+  wal-g:
+    command: bin/wal-g
+  envdir:
+    command: usr/bin/envdir
+parts:
+  wal-g:
+    plugin: make
+    source: .
+    # source: https://github.com/wal-g/wal-g.git
+    # source-type: git
+    # source-tag: v0.2.16
+    build-environment:
+      - USE_LIBSODIUM: "1"
+      - USE_LZO: "1"
+      - CGO_LDFLAGS: "-no-pie"
+    override-pull: |
+      snapcraftctl pull
+      make install go_deps link_external_deps
+    override-build: |
+      make pg_build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      make GOBIN=$SNAPCRAFT_PART_INSTALL/bin pg_install
+      GIT_VER=$(git describe --dirty --always --tags | sed -r 's/v(.*)/\1/g')
+      snapcraftctl set-version $GIT_VER
+    stage:
+      - bin/wal-g
+    build-packages:
+      - liblzo2-dev
+      - cmake
+      - build-essential
+    build-snaps:
+      - go/1.13/stable
+  envdir:
+    plugin: nil
+    stage-packages:
+      - daemontools
+    stage:
+      - usr/bin/envdir
