@@ -108,7 +108,7 @@ mariadb_integration_test: load_docker_common
 mongo_test: install deps mongo_build lint unlink_brotli
 
 mongo_build: $(CMD_FILES) $(PKG_FILES)
-	(cd $(MAIN_MONGO_PATH) && go build $(BUILD_ARGS) -mod vendor -tags "$(BUILD_TAGS)" -o wal-g -ldflags "-s -w -X github.com/wal-g/wal-g/cmd/mongo.BuildDate=`date -u +%Y.%m.%d_%H:%M:%S` -X github.com/wal-g/wal-g/cmd/mongo.GitRevision=`git rev-parse --short HEAD` -X github.com/wal-g/wal-g/cmd/mongo.WalgVersion=`git tag -l --points-at HEAD`")
+	(cd $(MAIN_MONGO_PATH) && go build $(BUILD_ARGS) -mod vendor -tags "$(BUILD_TAGS)" -o wal-g -ldflags "-s -w -X github.com/wal-g/wal-g/cmd/mongo.BuildDate=`date -u +%Y.%m.%d_%H:%M:%S` -X github.com/wal-g/wal-g/cmd/mongo.GitRevision=`git rev-parse --short HEAD` -X github.com/wal-g/wal-g/cmd/mongo.WalgVersion=`git describe --abbrev=0 --tags`")
 
 mongo_install: mongo_build
 	mv $(MAIN_MONGO_PATH)/wal-g $(GOBIN)/wal-g
