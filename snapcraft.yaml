@@ -1,5 +1,5 @@
 name: wal-g
-base: core18
+base: core20
 summary: WAL archival and restoration tool for PostgreSQL
 description: >
   WAL-G is an archival restoration tool for Postgres (beta for MySQL, MariaDB, MongoDB, and Redis).
@@ -40,8 +40,9 @@ parts:
       - cmake
       - build-essential
       - curl
+      - git
     build-snaps:
-      - go/1.13/stable
+      - go/1.15/stable
   envdir:
     plugin: nil
     stage-packages:
