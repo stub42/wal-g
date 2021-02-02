@@ -22,10 +22,15 @@ apps:
 parts:
   wal-g:
     plugin: make
-    source: .
-    # source: https://github.com/wal-g/wal-g.git
-    # source-type: git
-    # source-tag: v0.2.16
+
+    # We can build the snap from this branch using 'source: .',
+    # or a specific tag from upstream.
+    #
+    # source: .
+    source: https://github.com/wal-g/wal-g.git
+    source-type: git
+    source-tag: v0.2.19
+
     build-environment:
       - USE_LIBSODIUM: "1"
       - USE_LZO: "1"
@@ -33,6 +38,7 @@ parts:
     override-pull: |
       snapcraftctl pull
       GIT_VER=$(git describe --dirty --always --tags | sed -r 's/v(.*)/\1/g')
+      echo Building version $GIT_VER
       snapcraftctl set-version $GIT_VER
       make install go_deps link_external_deps # link_libsodium both pulls source using curl and builds
     override-build: |
