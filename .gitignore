@@ -23,4 +23,4 @@ tmp/
 .session_conf.sav
 __pycache__/
 venv/
-
+*.snap
