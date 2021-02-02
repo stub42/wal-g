@@ -10,7 +10,13 @@ confinement: classic
 adopt-info: wal-g
 apps:
   wal-g:
-    command: bin/wal-g
+    command: bin/wal-g.pg
+  pg:
+    command: bin/wal-g.pg
+  mysql:
+    command: bin/wal-g.mysql
+  mongo:
+    command: bin/wal-g.mongo
   envdir:
     command: usr/bin/envdir
 parts:
@@ -26,15 +32,22 @@ parts:
       - CGO_LDFLAGS: "-no-pie"
     override-pull: |
       snapcraftctl pull
-      make install go_deps link_external_deps
-    override-build: |
-      make pg_build
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      make GOBIN=$SNAPCRAFT_PART_INSTALL/bin pg_install
       GIT_VER=$(git describe --dirty --always --tags | sed -r 's/v(.*)/\1/g')
       snapcraftctl set-version $GIT_VER
+      make install go_deps link_external_deps # link_libsodium both pulls source using curl and builds
+    override-build: |
+      make unittest
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      make GOBIN=$SNAPCRAFT_PART_INSTALL/bin pg_install
+      mv $SNAPCRAFT_PART_INSTALL/bin/wal-g $SNAPCRAFT_PART_INSTALL/bin/wal-g.pg
+      make GOBIN=$SNAPCRAFT_PART_INSTALL/bin mysql_install
+      mv $SNAPCRAFT_PART_INSTALL/bin/wal-g $SNAPCRAFT_PART_INSTALL/bin/wal-g.mysql
+      make GOBIN=$SNAPCRAFT_PART_INSTALL/bin mongo_install
+      mv $SNAPCRAFT_PART_INSTALL/bin/wal-g $SNAPCRAFT_PART_INSTALL/bin/wal-g.mongo
     stage:
-      - bin/wal-g
+      - bin/wal-g.pg
+      - bin/wal-g.mysql
+      - bin/wal-g.mongo
     build-packages:
       - liblzo2-dev
       - cmake
